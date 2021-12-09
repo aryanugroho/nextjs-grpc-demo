@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grpc-web-demo-fe
+  labels:
+    app: grpc-web-demo-fe
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grpc-web-demo-fe
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: grpc-web-demo-fe
+        version: v1
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      serviceAccountName: grpc-web-demo-fe
+      containers:
+        - name: grpc-web-demo-fe
+          image: "aryalternative/grpc-web-demo-fe:latest"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: grpc-web-demo-fe
+  labels:
+    account: grpc-web-demo-fe
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+    service: frontend
+spec:
+  selector:
+    app: grpc-web-demo-fe
+  ports:
+    - port: 3000
+      name: http
